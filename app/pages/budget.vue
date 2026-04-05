@@ -34,12 +34,12 @@
         <!-- Total spend card -->
         <div class="total-hero card">
           <div class="total-hero-label">Total Spent</div>
-          <div class="total-hero-value">₱{{ weekTotal }}</div>
+          <div class="total-hero-value">{{ weekTotal }} ETB</div>
           <div class="total-hero-sub">{{ weekEntries.length }} expense{{ weekEntries.length !== 1 ? 's' : '' }} this week</div>
           <div class="total-progress-wrap">
             <div class="total-progress-bar" :style="{ width: overallPct + '%', background: overallPct > 90 ? '#f87171' : 'rgba(255,255,255,0.7)' }" />
           </div>
-          <div class="total-hero-limit" v-if="totalLimit > 0">₱{{ weekTotal }} / ₱{{ totalLimit }} limit</div>
+          <div class="total-hero-limit" v-if="totalLimit > 0">{{ weekTotal }} ETB / {{ totalLimit }} ETB limit</div>
         </div>
 
         <!-- Category breakdown -->
@@ -57,7 +57,7 @@
                 </div>
               </div>
               <div class="cat-row-right">
-                <div class="cat-row-amount">₱{{ catTotal(cat.key) }}</div>
+                <div class="cat-row-amount">{{ catTotal(cat.key) }} ETB</div>
                 <div class="cat-row-pct">{{ catPct(cat.key) }}%</div>
               </div>
             </div>
@@ -73,11 +73,11 @@
                 <div
                   class="daily-bar"
                   :style="{ height: day.pct + '%' }"
-                  :title="`₱${day.total}`"
+                  :title="`${day.total} ETB`"
                 />
               </div>
               <div class="daily-label">{{ day.label }}</div>
-              <div class="daily-amount">₱{{ day.total > 0 ? day.total : '' }}</div>
+              <div class="daily-amount">{{ day.total > 0 ? day.total : '' }} {{ day.total > 0 ? 'ETB' : '' }}</div>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@
                 <span class="limit-cat-name">{{ cat.label }}</span>
               </div>
               <div class="limit-input-wrap">
-                <span class="limit-peso">₱</span>
+                <span class="limit-etb">ETB</span>
                 <input
                   type="number"
                   class="limit-input"
@@ -136,7 +136,7 @@
           <div v-for="group in groupedEntries" :key="group.date" class="entry-group">
             <div class="group-date-header">
               <span>{{ group.label }}</span>
-              <span class="group-total">₱{{ group.total }}</span>
+              <span class="group-total">{{ group.total }} ETB</span>
             </div>
             <div
               v-for="entry in group.entries"
@@ -153,7 +153,7 @@
                   {{ getCat(entry.category)?.label }}
                 </span>
               </div>
-              <div class="entry-amount">₱{{ Number(entry.amount).toFixed(2) }}</div>
+              <div class="entry-amount">{{ Number(entry.amount).toFixed(2) }} ETB</div>
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Amount (₱) *</label>
+              <label>Amount (ETB) *</label>
               <input v-model="form.amount" type="number" step="0.01" min="0" placeholder="0.00" required />
             </div>
           </div>
@@ -638,7 +638,7 @@ onMounted(async () => {
   background: white;
 }
 
-.limit-peso {
+.limit-etb {
   padding: 0 6px;
   font-size: 12px;
   color: var(--text-muted);
@@ -885,4 +885,5 @@ onMounted(async () => {
   }
 }
 </style>
+
 

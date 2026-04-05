@@ -56,7 +56,7 @@
           <p>No expenses this week</p>
         </div>
         <div v-else>
-          <div class="budget-total">ETB {{ weekBudgetTotal }} total</div>
+          <div class="budget-total">{{ weekBudgetTotal }} ETB total</div>
           <div class="donut-wrap">
             <svg viewBox="0 0 100 100" class="donut-svg">
               <circle cx="50" cy="50" r="38" fill="none" stroke="#f0fdf4" stroke-width="16" />
@@ -152,7 +152,7 @@
         <div class="recs-col">
           <div class="recs-title">Recommendations</div>
           <div v-for="(rec, i) in report.recommendations" :key="i" class="rec-row">
-            <span class="rec-num">{{ i + 1 }}</span>
+            <span class="rec-num">{{ (i as number) + 1 }}</span>
             <span>{{ rec }}</span>
           </div>
         </div>
@@ -172,24 +172,24 @@ const report = ref<any>(null)
 const showClear = ref(false)
 const currentWeekOffset = ref(0)
 
-const weekStart = computed(() => {
+const weekStart = computed((): string => {
   const d = new Date()
   d.setDate(d.getDate() + currentWeekOffset.value * 7)
   const day = d.getDay()
   const diff = d.getDate() - day + (day === 0 ? -6 : 1)
   d.setDate(diff)
-  return d.toISOString().split('T')[0]
+  return d.toISOString().split('T')[0] as string
 })
 
-const weekEnd = computed(() => {
+const weekEnd = computed((): string => {
   const d = new Date(weekStart.value)
   d.setDate(d.getDate() + 6)
-  return d.toISOString().split('T')[0]
+  return d.toISOString().split('T')[0] as string
 })
 
 const weekLabel = computed(() => {
-  const s = new Date(weekStart.value + 'T00:00:00')
-  const e = new Date(weekEnd.value + 'T00:00:00')
+  const s = new Date(String(weekStart.value) + 'T00:00:00')
+  const e = new Date(String(weekEnd.value) + 'T00:00:00')
   return `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
 })
 
@@ -205,8 +205,10 @@ const weekStats = computed(() => {
   const done = weekSessions.value.filter(s => s.status === 'done')
   const skipped = weekSessions.value.filter(s => s.status === 'skipped')
   const hours = done.reduce((acc, s) => {
-    const [sh, sm] = s.start_time.split(':').map(Number)
-    const [eh, em] = s.end_time.split(':').map(Number)
+    const sp = s.start_time.split(':').map(Number)
+    const ep = s.end_time.split(':').map(Number)
+    const sh = sp[0] ?? 0, sm = sp[1] ?? 0
+    const eh = ep[0] ?? 0, em = ep[1] ?? 0
     return acc + (eh * 60 + em - sh * 60 - sm) / 60
   }, 0)
   return {
@@ -220,8 +222,10 @@ const weekStats = computed(() => {
 const subjectBreakdown = computed(() => {
   const map: Record<string, number> = {}
   weekSessions.value.filter(s => s.status === 'done').forEach(s => {
-    const [sh, sm] = s.start_time.split(':').map(Number)
-    const [eh, em] = s.end_time.split(':').map(Number)
+    const sp = s.start_time.split(':').map(Number)
+    const ep = s.end_time.split(':').map(Number)
+    const sh = sp[0] ?? 0, sm = sp[1] ?? 0
+    const eh = ep[0] ?? 0, em = ep[1] ?? 0
     const h = (eh * 60 + em - sh * 60 - sm) / 60
     map[s.subject] = (map[s.subject] || 0) + h
   })
@@ -269,9 +273,11 @@ const donutSegments = computed(() => {
 })
 
 // ── Pure math analysis engine ──
-function sessionMinutes(s: any) {
-  const [sh, sm] = s.start_time.split(':').map(Number)
-  const [eh, em] = s.end_time.split(':').map(Number)
+function sessionMinutes(s: any): number {
+  const sp = s.start_time.split(':').map(Number)
+  const ep = s.end_time.split(':').map(Number)
+  const sh = sp[0] ?? 0, sm = sp[1] ?? 0
+  const eh = ep[0] ?? 0, em = ep[1] ?? 0
   return eh * 60 + em - sh * 60 - sm
 }
 
@@ -360,12 +366,13 @@ function runAnalysis() {
     const catMap: Record<string, number> = {}
     wb.forEach(b => { catMap[b.category] = (catMap[b.category] || 0) + Number(b.amount) })
     const topCat = Object.entries(catMap).sort((a, b) => b[1] - a[1])[0]
+    if (!topCat) return
     const topPct = Math.round((topCat[1] / total) * 100)
 
     if (topPct > 60)
-      insights.push({ type: 'warn', text: `${topPct}% of spending went to ${topCat[0]} (ETB ${topCat[1].toFixed(0)}). Consider balancing.` })
+      insights.push({ type: 'warn', text: `${topPct}% of spending went to ${topCat[0]} (${topCat[1].toFixed(0)} ETB). Consider balancing.` })
     else
-      insights.push({ type: 'good', text: `Spending spread across categories. Total: ETB ${total.toFixed(0)} this week.` })
+      insights.push({ type: 'good', text: `Spending spread across categories. Total: ${total.toFixed(0)} ETB this week.` })
   }
 
   // Recommendations
@@ -397,7 +404,8 @@ function runAnalysis() {
   ]
   let fi = 0
   while (recs.length < 3 && fi < fallbacks.length) {
-    recs.push(fallbacks[fi++])
+    const fb = fallbacks[fi++]
+    if (fb) recs.push(fb)
   }
 
   report.value = { score, grade, insights, recommendations: recs.slice(0, 3) }

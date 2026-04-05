@@ -17,7 +17,7 @@ ${sessions.length === 0 ? 'No sessions logged.' : sessions.map((s: any) =>
 
 BUDGET SPENDING:
 ${budget.length === 0 ? 'No expenses logged.' : budget.map((b: any) =>
-        `- ${b.category}: ${b.description || 'N/A'} — ETB ${b.amount} on ${b.date}`
+        `- ${b.category}: ${b.description || 'N/A'} — ${b.amount} ETB on ${b.date}`
     ).join('\n')}
 
 Give a structured analysis with:

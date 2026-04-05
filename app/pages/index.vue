@@ -39,7 +39,7 @@
           <Wallet :size="18" />
         </div>
         <div>
-          <div class="stat-value">₱{{ stats.weeklySpend }}</div>
+          <div class="stat-value">{{ stats.weeklySpend }} ETB</div>
           <div class="stat-label">Spent this week</div>
         </div>
       </div>
@@ -87,7 +87,7 @@
             <div class="budget-bar-wrap">
               <div class="budget-bar" :style="{ width: cat.pct + '%', background: cat.color }" />
             </div>
-            <span class="budget-amount">₱{{ cat.total }}</span>
+            <span class="budget-amount">{{ cat.total }} ETB</span>
           </div>
         </div>
       </div>
@@ -122,21 +122,21 @@ const supabase = useSupabaseClient()
 const sessions = ref<any[]>([])
 const budgetEntries = ref<any[]>([])
 
-const weekStart = computed(() => {
+const weekStart = computed((): string => {
   const d = new Date()
   const day = d.getDay()
   const diff = d.getDate() - day + (day === 0 ? -6 : 1)
   const mon = new Date(d.setDate(diff))
-  return mon.toISOString().split('T')[0]
+  return mon.toISOString().split('T')[0] as string
 })
 
-const weekEnd = computed(() => {
+const weekEnd = computed((): string => {
   const d = new Date(weekStart.value)
   d.setDate(d.getDate() + 6)
-  return d.toISOString().split('T')[0]
+  return d.toISOString().split('T')[0] as string
 })
 
-const todayStr = new Date().toISOString().split('T')[0]
+const todayStr = new Date().toISOString().split('T')[0] as string
 
 const todaySessions = computed(() =>
   sessions.value.filter(s => s.date === todayStr)
@@ -172,8 +172,10 @@ const stats = computed(() => {
   const weekSessions = sessions.value.filter(s => s.date >= weekStart.value && s.date <= weekEnd.value)
   const done = weekSessions.filter(s => s.status === 'done')
   const hours = done.reduce((acc, s) => {
-    const [sh, sm] = s.start_time.split(':').map(Number)
-    const [eh, em] = s.end_time.split(':').map(Number)
+    const parts = s.start_time.split(':').map(Number)
+    const eparts = s.end_time.split(':').map(Number)
+    const sh = parts[0] ?? 0, sm = parts[1] ?? 0
+    const eh = eparts[0] ?? 0, em = eparts[1] ?? 0
     return acc + (eh * 60 + em - sh * 60 - sm) / 60
   }, 0)
   const weekBudget = budgetEntries.value.filter(b => b.date >= weekStart.value && b.date <= weekEnd.value)
@@ -187,7 +189,9 @@ const stats = computed(() => {
 })
 
 function formatTime(t: string) {
-  const [h, m] = t.split(':').map(Number)
+  const parts = t.split(':').map(Number)
+  const h = parts[0] ?? 0
+  const m = parts[1] ?? 0
   const ampm = h >= 12 ? 'PM' : 'AM'
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${ampm}`
 }
@@ -393,4 +397,5 @@ onMounted(async () => {
   color: #dc2626;
 }
 </style>
+
 
