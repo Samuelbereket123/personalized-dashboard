@@ -30,6 +30,10 @@
         <div class="stat-mini-val">{{ weekStats.hours }}h</div>
         <div class="stat-mini-label">Hours studied</div>
       </div>
+      <div class="card stat-mini">
+        <div class="stat-mini-val green">{{ weekBibleChapters.length }}</div>
+        <div class="stat-mini-label">Bible chapters read</div>
+      </div>
     </div>
 
     <!-- Subject breakdown -->
@@ -168,6 +172,7 @@ import { useSupabaseClient } from '#imports'
 const supabase = useSupabaseClient()
 const sessions = ref<any[]>([])
 const budgetEntries = ref<any[]>([])
+const bibleProgress = ref<any[]>([])
 const report = ref<any>(null)
 const showClear = ref(false)
 const currentWeekOffset = ref(0)
@@ -199,6 +204,10 @@ const weekSessions = computed(() =>
 
 const weekBudget = computed(() =>
   budgetEntries.value.filter(b => b.date >= weekStart.value && b.date <= weekEnd.value)
+)
+
+const weekBibleChapters = computed(() =>
+  bibleProgress.value.filter(b => b.read_at >= weekStart.value && b.read_at <= weekEnd.value)
 )
 
 const weekStats = computed(() => {
@@ -375,6 +384,17 @@ function runAnalysis() {
       insights.push({ type: 'good', text: `Spending spread across categories. Total: ${total.toFixed(0)} ETB this week.` })
   }
 
+  // Bible reading insights
+  const bibleChapters = weekBibleChapters.value.length
+  if (bibleChapters >= 7)
+    insights.push({ type: 'good', text: `Read ${bibleChapters} Bible chapters this week — great consistency.` })
+  else if (bibleChapters >= 3)
+    insights.push({ type: 'warn', text: `Read ${bibleChapters} Bible chapter${bibleChapters !== 1 ? 's' : ''} this week. Aim for at least 1 chapter a day.` })
+  else if (bibleChapters > 0)
+    insights.push({ type: 'bad', text: `Only ${bibleChapters} Bible chapter${bibleChapters !== 1 ? 's' : ''} read this week. Try to be more consistent.` })
+  else
+    insights.push({ type: 'warn', text: 'No Bible chapters logged this week. Open the Bible Tracker and start ticking.' })
+
   // Recommendations
   const recs: string[] = []
 
@@ -395,6 +415,9 @@ function runAnalysis() {
 
   if (wb.length === 0)
     recs.push(`Start logging your expenses. Even rough numbers help you see where your money goes.`)
+
+  if (weekBibleChapters.value.length < 3)
+    recs.push(`Read at least 1 Bible chapter daily. Even short readings build a strong habit over time.`)
 
   // Fill to 3 recs minimum
   const fallbacks = [
@@ -437,12 +460,14 @@ function nextWeek() {
 }
 
 onMounted(async () => {
-  const [{ data: s }, { data: b }] = await Promise.all([
+  const [{ data: s }, { data: b }, { data: bp }] = await Promise.all([
     supabase.from('study_sessions').select('*'),
     supabase.from('budget_entries').select('*'),
+    supabase.from('bible_progress').select('book, chapter, read_at'),
   ])
   sessions.value = s || []
   budgetEntries.value = b || []
+  bibleProgress.value = bp || []
 })
 </script>
 

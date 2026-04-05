@@ -7,6 +7,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     deepseekApiKey: process.env.DEEPSEEK_API_KEY,
+    resendApiKey: process.env.RESEND_API_KEY,
+    reminderEmail: process.env.REMINDER_EMAIL,
   },
   css: ['~/assets/css/main.css'],
   app: {

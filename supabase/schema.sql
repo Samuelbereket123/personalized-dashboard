@@ -29,3 +29,13 @@ create table if not exists weekly_analyses (
   analysis_text text not null,
   created_at timestamptz default now()
 );
+
+-- Bible reading progress
+create table if not exists bible_progress (
+  id uuid primary key default gen_random_uuid(),
+  book text not null,
+  chapter int not null,
+  read_at date not null default current_date,
+  created_at timestamptz default now(),
+  unique(book, chapter)
+);

@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, LayoutDashboard, CalendarDays, BarChart2, Wallet, Menu } from 'lucide-vue-next'
+import { BookOpen, LayoutDashboard, CalendarDays, BarChart2, Wallet, Menu, BookMarked } from 'lucide-vue-next'
 
 const sidebarOpen = ref(false)
 
@@ -62,6 +62,7 @@ const navItems = [
   { to: '/schedule', label: 'Schedule', icon: CalendarDays },
   { to: '/analysis', label: 'Weekly Analysis', icon: BarChart2 },
   { to: '/budget', label: 'Budget', icon: Wallet },
+  { to: '/bible', label: 'Bible Tracker', icon: BookMarked },
 ]
 
 const today = computed(() => {
