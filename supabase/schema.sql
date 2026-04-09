@@ -30,7 +30,16 @@ create table if not exists weekly_analyses (
   created_at timestamptz default now()
 );
 
--- Bible reading progress
+-- Journal entries
+create table if not exists journal_entries (
+  id uuid primary key default gen_random_uuid(),
+  title text,
+  body text not null,
+  mood text default 'neutral', -- focused | motivated | tired | stressed | distracted | neutral
+  date date not null default current_date,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
 create table if not exists bible_progress (
   id uuid primary key default gen_random_uuid(),
   book text not null,

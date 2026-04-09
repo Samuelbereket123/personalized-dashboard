@@ -211,21 +211,21 @@ async function toggleChapter(book: string, ch: number) {
 
   if (newSet.has(k)) {
     newSet.delete(k)
-    await supabase.from('bible_progress').delete().eq('book', book).eq('chapter', ch)
+    await (supabase as any).from('bible_progress').delete().eq('book', book).eq('chapter', ch)
   } else {
     newSet.add(k)
     const today = new Date().toISOString().split('T')[0] as string
     readDates.value[k] = today
-    await supabase.from('bible_progress').upsert({ book, chapter: ch, read_at: today }, { onConflict: 'book,chapter' })
+    await (supabase as any).from('bible_progress').upsert({ book, chapter: ch, read_at: today }, { onConflict: 'book,chapter' })
   }
   readChapters.value = newSet
 }
 
 onMounted(async () => {
-  const { data } = await supabase.from('bible_progress').select('book, chapter, read_at')
+  const { data } = await (supabase as any).from('bible_progress').select('book, chapter, read_at')
   if (data) {
     const s = new Set<string>()
-    data.forEach(r => {
+    ;(data as { book: string; chapter: number; read_at: string }[]).forEach(r => {
       const k = key(r.book, r.chapter)
       s.add(k)
       readDates.value[k] = r.read_at
