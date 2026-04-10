@@ -387,7 +387,7 @@ async function saveEntry() {
       if (idx !== -1) entries.value[idx] = { ...editingEntry.value, ...form.value }
     }
   } else {
-    const { data, error } = await supabase.from('budget_entries').insert(form.value).select().single()
+    const { data, error } = await supabase.from('budget_entries').insert({ ...form.value, user_id: useSupabaseUser().value?.id }).select().single()
     if (!error && data) entries.value.push(data)
   }
   saving.value = false

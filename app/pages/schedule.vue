@@ -369,7 +369,7 @@ async function saveSession() {
       if (idx !== -1) sessions.value[idx] = { ...editingSession.value, ...form.value }
     }
   } else {
-    const { data, error } = await supabase.from('study_sessions').insert(form.value).select().single()
+    const { data, error } = await supabase.from('study_sessions').insert({ ...form.value, user_id: useSupabaseUser().value?.id }).select().single()
     if (!error && data) sessions.value.push(data)
   }
   saving.value = false

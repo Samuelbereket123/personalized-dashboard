@@ -27,9 +27,17 @@
       </nav>
 
       <div class="sidebar-footer">
+        <!-- Dark mode toggle -->
+        <button class="dark-toggle" @click="toggleDark">
+          <component :is="isDark ? Sun : Moon" :size="15" />
+          <span>{{ isDark ? 'Light mode' : 'Dark mode' }}</span>
+        </button>
         <div class="user-chip">
-          <div class="user-avatar">S</div>
-          <span>Student</span>
+          <div class="user-avatar">{{ userInitial }}</div>
+          <span class="user-name">{{ userName }}</span>
+          <button class="logout-btn" @click="logout" title="Sign out">
+            <LogOut :size="14" />
+          </button>
         </div>
       </div>
     </aside>
@@ -53,9 +61,12 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, LayoutDashboard, CalendarDays, BarChart2, Wallet, Menu, BookMarked, NotebookPen } from 'lucide-vue-next'
+import { BookOpen, LayoutDashboard, CalendarDays, BarChart2, Wallet, Menu, BookMarked, NotebookPen, Moon, Sun, LogOut } from 'lucide-vue-next'
 
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 const sidebarOpen = ref(false)
+const isDark = ref(false)
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -68,6 +79,34 @@ const navItems = [
 
 const today = computed(() => {
   return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+})
+
+function toggleDark() {
+  isDark.value = !isDark.value
+  document.documentElement.classList.toggle('dark', isDark.value)
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
+}
+
+async function logout() {
+  await supabase.auth.signOut()
+  navigateTo('/login')
+}
+
+const userInitial = computed(() => {
+  const name = user.value?.user_metadata?.full_name || user.value?.email || 'S'
+  return name.charAt(0).toUpperCase()
+})
+
+const userName = computed(() => {
+  return user.value?.user_metadata?.full_name || user.value?.email?.split('@')[0] || 'Student'
+})
+
+onMounted(() => {
+  const saved = localStorage.getItem('theme')
+  if (saved === 'dark') {
+    isDark.value = true
+    document.documentElement.classList.add('dark')
+  }
 })
 </script>
 
@@ -152,6 +191,30 @@ const today = computed(() => {
 .sidebar-footer {
   padding: 12px 8px;
   border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dark-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s;
+}
+
+.dark-toggle:hover {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.85);
 }
 
 .user-chip {
@@ -162,6 +225,29 @@ const today = computed(() => {
   border-radius: 8px;
   color: rgba(255,255,255,0.6);
   font-size: 13px;
+}
+
+.user-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.logout-btn:hover {
+  color: rgba(255,255,255,0.8);
 }
 
 .user-avatar {

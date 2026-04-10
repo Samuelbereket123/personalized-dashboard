@@ -216,7 +216,7 @@ async function toggleChapter(book: string, ch: number) {
     newSet.add(k)
     const today = new Date().toISOString().split('T')[0] as string
     readDates.value[k] = today
-    await (supabase as any).from('bible_progress').upsert({ book, chapter: ch, read_at: today }, { onConflict: 'book,chapter' })
+    await (supabase as any).from('bible_progress').upsert({ book, chapter: ch, read_at: today, user_id: useSupabaseUser().value?.id }, { onConflict: 'book,chapter' })
   }
   readChapters.value = newSet
 }

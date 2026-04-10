@@ -193,7 +193,7 @@ async function saveEntry() {
   } else {
     const { data, error } = await (supabase as any)
       .from('journal_entries')
-      .insert(form.value)
+      .insert({ ...form.value, user_id: useSupabaseUser().value?.id })
       .select()
       .single()
     if (!error && data) {

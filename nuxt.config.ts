@@ -3,7 +3,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/supabase'],
   supabase: {
-    redirect: false,
+    redirect: true,
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: ['/login'],
+    },
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
   },
