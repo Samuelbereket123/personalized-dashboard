@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, LayoutDashboard, CalendarDays, BarChart2, Wallet, Menu, BookMarked, NotebookPen, Moon, Sun, LogOut } from 'lucide-vue-next'
+import { BookOpen, LayoutDashboard, CalendarDays, BarChart2, Wallet, Menu, BookMarked, NotebookPen, Moon, Sun, LogOut, FileText } from 'lucide-vue-next'
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -75,6 +75,7 @@ const navItems = [
   { to: '/budget', label: 'Budget', icon: Wallet },
   { to: '/bible', label: 'Bible Tracker', icon: BookMarked },
   { to: '/journal', label: 'Journal', icon: NotebookPen },
+  { to: '/drafts', label: 'Substack Drafts', icon: FileText },
 ]
 
 const today = computed(() => {

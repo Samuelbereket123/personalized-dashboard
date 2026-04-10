@@ -30,7 +30,17 @@ create table if not exists weekly_analyses (
   created_at timestamptz default now()
 );
 
--- Journal entries
+-- Substack drafts
+create table if not exists substack_drafts (
+  id uuid primary key default gen_random_uuid(),
+  title text not null default 'Untitled Draft',
+  raw text default '',
+  enhanced text default '',
+  status text default 'draft', -- draft | ready | published
+  user_id uuid references auth.users(id) on delete cascade,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
 create table if not exists journal_entries (
   id uuid primary key default gen_random_uuid(),
   title text,
