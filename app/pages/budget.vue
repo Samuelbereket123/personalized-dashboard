@@ -210,6 +210,7 @@ import { Plus, ChevronLeft, ChevronRight, Wallet, X, Bus, UtensilsCrossed, BookO
 import { useSupabaseClient } from '#imports'
 
 const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 const entries = ref<any[]>([])
 const showForm = ref(false)
 const showClear = ref(false)
@@ -387,7 +388,8 @@ async function saveEntry() {
       if (idx !== -1) entries.value[idx] = { ...editingEntry.value, ...form.value }
     }
   } else {
-    const { data, error } = await supabase.from('budget_entries').insert({ ...form.value, user_id: useSupabaseUser().value?.id }).select().single()
+    const { data, error } = await supabase.from('budget_entries').insert({ ...form.value, user_id: user.value?.id }).select().single()
+    if (error) console.error('Budget insert error:', error)
     if (!error && data) entries.value.push(data)
   }
   saving.value = false

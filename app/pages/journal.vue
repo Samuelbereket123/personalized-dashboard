@@ -111,6 +111,7 @@ import { Plus, NotebookPen } from 'lucide-vue-next'
 import { useSupabaseClient } from '#imports'
 
 const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 const entries = ref<any[]>([])
 const selectedEntry = ref<any>(null)
 const isWriting = ref(false)
@@ -193,7 +194,7 @@ async function saveEntry() {
   } else {
     const { data, error } = await (supabase as any)
       .from('journal_entries')
-      .insert({ ...form.value, user_id: useSupabaseUser().value?.id })
+      .insert({ ...form.value, user_id: user.value?.id })
       .select()
       .single()
     if (!error && data) {

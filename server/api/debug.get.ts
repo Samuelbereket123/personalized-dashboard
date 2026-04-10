@@ -8,28 +8,22 @@ export default defineEventHandler(async () => {
         return { error: 'Missing env vars', url: !!url, key: !!key }
     }
 
-    const supabase = createClient(url, key)
+    const supabase = createClient(url, key, {
+        auth: { persistSession: false }
+    })
 
-    // Try inserting a test entry
+    // Try inserting without user_id to test RLS
     const { data: insertData, error: insertError } = await supabase
         .from('budget_entries')
         .insert({ category: 'other', amount: 1, date: '2026-01-01', description: 'debug test' })
         .select()
         .single()
 
-    // Read back
-    const { data: readData, error: readError } = await supabase
-        .from('budget_entries')
-        .select('id')
-        .limit(1)
-
     return {
         insertOk: !insertError,
         insertError: insertError?.message ?? null,
         insertCode: insertError?.code ?? null,
-        readOk: !readError,
-        readError: readError?.message ?? null,
-        hasData: (readData?.length ?? 0) > 0,
+        insertHint: insertError?.hint ?? null,
         insertedId: insertData?.id ?? null,
     }
 })
