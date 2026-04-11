@@ -139,7 +139,7 @@ function selectDraft(draft: any) {
 }
 
 async function createDraft() {
-  const uid = session.value?.user?.id ?? user.value?.id
+  const uid = user.value?.id
   console.log('uid:', uid)
   const { data, error } = await (supabase as any)
     .from('substack_drafts')

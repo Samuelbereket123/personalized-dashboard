@@ -184,7 +184,6 @@ import { useSupabaseClient } from '#imports'
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
-const session = useSupabaseSession()
 const sessions = ref<any[]>([])
 const showForm = ref(false)
 const showClear = ref(false)
@@ -371,7 +370,7 @@ async function saveSession() {
       if (idx !== -1) sessions.value[idx] = { ...editingSession.value, ...form.value }
     }
   } else {
-    const { data, error } = await supabase.from('study_sessions').insert({ ...form.value, user_id: session.value?.user?.id ?? user.value?.id }).select().single()
+    const { data, error } = await supabase.from('study_sessions').insert({ ...form.value, user_id: user.value?.id }).select().single()
     if (!error && data) sessions.value.push(data)
   }
   saving.value = false

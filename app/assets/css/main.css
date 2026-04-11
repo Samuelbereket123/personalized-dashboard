@@ -325,3 +325,234 @@ label {
   background: var(--gray-200);
   border-radius: 4px;
 }
+
+/* ── Dark mode modal + form overrides ── */
+html.dark .modal,
+html.dark .confirm-box {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  color: #eeeeee;
+}
+
+html.dark .modal-header,
+html.dark .modal-body {
+  background: #161616;
+  color: #eeeeee;
+}
+
+html.dark .modal-header {
+  border-bottom-color: #2a2a2a;
+}
+
+html.dark .modal-body .form-group label {
+  color: #aaaaaa;
+}
+
+html.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+html.dark .editor-textarea,
+html.dark .title-input,
+html.dark .editor-area {
+  background: #111111 !important;
+  color: #eeeeee !important;
+}
+
+html.dark .editor-toolbar,
+html.dark .editor-topbar {
+  background: #161616;
+  border-bottom-color: #2a2a2a;
+}
+
+html.dark .editor-footer,
+html.dark .side-footer {
+  background: #0a0a0a;
+  border-top-color: #2a2a2a;
+  color: #666666;
+}
+
+html.dark .side-label {
+  background: #111111;
+  border-bottom-color: #2a2a2a;
+  color: #666666;
+}
+
+html.dark .viewer-header {
+  border-bottom-color: #2a2a2a;
+}
+
+html.dark .viewer-body {
+  color: #dddddd;
+}
+
+html.dark .entry-item,
+html.dark .draft-item {
+  background: #111111;
+  border-color: #2a2a2a;
+}
+
+html.dark .entry-active,
+html.dark .draft-active {
+  background: #0f1f0f !important;
+  border-color: #22c55e !important;
+}
+
+html.dark .entry-title,
+html.dark .draft-title {
+  color: #eeeeee;
+}
+
+html.dark .entry-preview,
+html.dark .draft-preview {
+  color: #666666;
+}
+
+html.dark .log-header,
+html.dark .timeline-header {
+  background: #111111;
+  border-bottom-color: #2a2a2a;
+}
+
+html.dark .group-date-header {
+  color: #555555;
+}
+
+html.dark .entry-row:hover {
+  background: #1a1a1a;
+}
+
+html.dark .session-row,
+html.dark .upcoming-card {
+  background: #1a1a1a;
+}
+
+html.dark .hour-line {
+  background: #1e1e1e;
+}
+
+html.dark .tl-planned {
+  background: #0f1f0f;
+  border-left-color: #22c55e;
+}
+
+html.dark .tl-done {
+  background: #122212;
+  border-left-color: #16a34a;
+}
+
+html.dark .tl-skipped {
+  background: #1f0f0f;
+  border-left-color: #f87171;
+}
+
+html.dark .mini-planned {
+  background: #0f1f0f;
+  border-left-color: #22c55e;
+}
+
+html.dark .mini-done {
+  background: #122212;
+  border-left-color: #16a34a;
+}
+
+html.dark .mini-skipped {
+  background: #1f0f0f;
+  border-left-color: #f87171;
+}
+
+html.dark .topbar {
+  background: #111111;
+  border-bottom-color: #2a2a2a;
+}
+
+html.dark .week-nav {
+  background: #111111;
+}
+
+html.dark .filter-tab {
+  border-color: #2a2a2a;
+  color: #aaaaaa;
+}
+
+html.dark .filter-tab:hover {
+  background: #1c1c1c;
+}
+
+html.dark .status-select {
+  background: #1c1c1c;
+  color: #eeeeee;
+  border-color: #2a2a2a;
+}
+
+html.dark .limit-input-wrap {
+  background: #1c1c1c;
+  border-color: #2a2a2a;
+}
+
+html.dark .limit-etb {
+  background: #111111;
+  border-right-color: #2a2a2a;
+  color: #666666;
+}
+
+html.dark .total-hero {
+  background: #0a0a0a;
+}
+
+html.dark .cat-row:hover,
+html.dark .cat-active {
+  background: #1a1a1a;
+}
+
+html.dark .daily-bar-wrap {
+  background: #1a1a1a;
+}
+
+html.dark .book-header:hover {
+  background: #1a1a1a;
+}
+
+html.dark .chapters-grid {
+  background: #0a0a0a;
+  border-top-color: #2a2a2a;
+}
+
+html.dark .ch-btn {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #aaaaaa;
+}
+
+html.dark .ch-btn:hover {
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+html.dark .score-card .score-label {
+  color: #666666;
+}
+
+html.dark .insight-good {
+  background: #0f1f0f;
+  color: #4ade80;
+}
+
+html.dark .insight-warn {
+  background: #1f1a0a;
+  color: #fbbf24;
+}
+
+html.dark .insight-bad {
+  background: #1f0f0f;
+  color: #f87171;
+}
+
+html.dark .ai-result {
+  background: #1a1a1a;
+}
+
+html.dark .confirm-icon {
+  background: #2a1515;
+  color: #f87171;
+}

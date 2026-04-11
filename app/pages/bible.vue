@@ -91,7 +91,6 @@ import { useSupabaseClient } from '#imports'
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
-const session = useSupabaseSession()
 const readChapters = ref<Set<string>>(new Set())
 const readDates = ref<Record<string, string>>({})
 const openBooks = ref<Set<string>>(new Set())
@@ -218,7 +217,7 @@ async function toggleChapter(book: string, ch: number) {
     newSet.add(k)
     const today = new Date().toISOString().split('T')[0] as string
     readDates.value[k] = today
-    await (supabase as any).from('bible_progress').upsert({ book, chapter: ch, read_at: today, user_id: session.value?.user?.id ?? user.value?.id }, { onConflict: 'book,chapter' })
+    await (supabase as any).from('bible_progress').upsert({ book, chapter: ch, read_at: today, user_id: user.value?.id }, { onConflict: 'book,chapter' })
   }
   readChapters.value = newSet
 }
