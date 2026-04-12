@@ -27,7 +27,8 @@
             <div class="draft-item-top">
               <span :class="['status-dot', `status-${draft.status}`]" />
               <span class="draft-status">{{ draft.status }}</span>
-              <span class="draft-date">{{ formatDate(draft.updated_at) }}</span>
+              <Lock v-if="draft.pin" :size="11" style="color:var(--text-muted); margin-left:auto;" />
+              <span v-else class="draft-date">{{ formatDate(draft.updated_at) }}</span>
             </div>
             <div class="draft-title">{{ draft.title || 'Untitled Draft' }}</div>
             <div class="draft-preview">{{ preview(draft.raw) }}</div>
@@ -57,6 +58,12 @@
               <option value="ready">Ready</option>
               <option value="published">Published</option>
             </select>
+            <button v-if="selectedDraft.pin" class="btn btn-ghost" style="padding:6px 10px;" @click="removePin(selectedDraft)" title="Remove PIN">
+              <Unlock :size="14" />
+            </button>
+            <button v-else class="btn btn-ghost" style="padding:6px 10px;" @click="openSetPin(selectedDraft)" title="Lock draft">
+              <Lock :size="14" />
+            </button>
             <button class="btn btn-danger" style="padding:6px 10px;" @click="showDelete = true">
               <Trash2 :size="14" />
             </button>
@@ -106,20 +113,39 @@
       message="This draft will be permanently deleted."
       @confirm="deleteDraft"
     />
+
+    <PinDialog
+      v-model="showPinDialog"
+      :is-set="true"
+      :correct-pin="pinDialogDraft?.pin"
+      @unlocked="onUnlocked"
+    />
+
+    <PinDialog
+      v-model="showSetPin"
+      :is-set="false"
+      @pin-set="onPinSet"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Plus, FileText, Trash2, PenLine, Sparkles } from 'lucide-vue-next'
+import { Plus, FileText, Trash2, PenLine, Sparkles, Lock, Unlock } from 'lucide-vue-next'
 import { useSupabaseClient, useSupabaseUser } from '#imports'
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
-const session = useSupabaseSession()
 const drafts = ref<any[]>([])
 const selectedDraft = ref<any>(null)
 const showDelete = ref(false)
 let saveTimer: ReturnType<typeof setTimeout> | null = null
+
+// PIN state
+const showPinDialog = ref(false)
+const pinDialogDraft = ref<any>(null)
+const unlockedIds = ref<Set<string>>(new Set())
+const showSetPin = ref(false)
+const pinTargetDraft = ref<any>(null)
 
 function preview(text: string) {
   if (!text) return 'No content yet...'
@@ -135,7 +161,40 @@ function countWords(text: string) {
 }
 
 function selectDraft(draft: any) {
+  if (draft.pin && !unlockedIds.value.has(draft.id)) {
+    pinDialogDraft.value = draft
+    showPinDialog.value = true
+    return
+  }
   selectedDraft.value = { ...draft }
+}
+
+function onUnlocked() {
+  if (!pinDialogDraft.value) return
+  unlockedIds.value = new Set([...unlockedIds.value, pinDialogDraft.value.id])
+  selectedDraft.value = { ...pinDialogDraft.value }
+  pinDialogDraft.value = null
+}
+
+function openSetPin(draft: any) {
+  pinTargetDraft.value = draft
+  showSetPin.value = true
+}
+
+async function onPinSet(pin: string) {
+  if (!pinTargetDraft.value) return
+  await (supabase as any).from('substack_drafts').update({ pin }).eq('id', pinTargetDraft.value.id)
+  const idx = drafts.value.findIndex(d => d.id === pinTargetDraft.value.id)
+  if (idx !== -1) drafts.value[idx].pin = pin
+  if (selectedDraft.value?.id === pinTargetDraft.value.id) selectedDraft.value.pin = pin
+  pinTargetDraft.value = null
+}
+
+async function removePin(draft: any) {
+  await (supabase as any).from('substack_drafts').update({ pin: null }).eq('id', draft.id)
+  const idx = drafts.value.findIndex(d => d.id === draft.id)
+  if (idx !== -1) drafts.value[idx].pin = null
+  if (selectedDraft.value?.id === draft.id) selectedDraft.value.pin = null
 }
 
 async function createDraft() {

@@ -32,6 +32,7 @@
           >
             <div class="entry-item-top">
               <span class="entry-date">{{ formatDate(entry.date) }}</span>
+              <Lock v-if="entry.pin" :size="12" style="color:var(--text-muted);" />
             </div>
             <div class="entry-title">{{ entry.title || 'Untitled' }}</div>
             <div class="entry-preview">{{ preview(entry.body) }}</div>
@@ -89,6 +90,12 @@
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-ghost" @click="editEntry(selectedEntry)">Edit</button>
+              <button v-if="selectedEntry.pin" class="btn btn-ghost" @click="removePin(selectedEntry)" title="Remove PIN">
+                <Unlock :size="14" />
+              </button>
+              <button v-else class="btn btn-ghost" @click="openSetPin(selectedEntry)" title="Lock entry">
+                <Lock :size="14" />
+              </button>
               <button class="btn btn-danger" @click="showClear = true">Delete</button>
             </div>
           </div>
@@ -103,11 +110,24 @@
       message="This journal entry will be permanently deleted."
       @confirm="deleteEntry"
     />
+
+    <PinDialog
+      v-model="showPinDialog"
+      :is-set="true"
+      :correct-pin="pinDialogEntry?.pin"
+      @unlocked="onUnlocked"
+    />
+
+    <PinDialog
+      v-model="showSetPin"
+      :is-set="false"
+      @pin-set="onPinSet"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Plus, NotebookPen } from 'lucide-vue-next'
+import { Plus, NotebookPen, Lock, Unlock } from 'lucide-vue-next'
 import { useSupabaseClient } from '#imports'
 
 const supabase = useSupabaseClient()
@@ -119,6 +139,13 @@ const saving = ref(false)
 const showClear = ref(false)
 const search = ref('')
 const editingEntry = ref<any>(null)
+
+// PIN state
+const showPinDialog = ref(false)
+const pinDialogEntry = ref<any>(null)
+const unlockedIds = ref<Set<string>>(new Set())
+const showSetPin = ref(false)
+const pinTargetEntry = ref<any>(null)
 
 const defaultForm = () => ({
   title: '',
@@ -164,9 +191,44 @@ function editEntry(entry: any) {
 }
 
 function selectEntry(entry: any) {
+  if (entry.pin && !unlockedIds.value.has(entry.id)) {
+    pinDialogEntry.value = entry
+    showPinDialog.value = true
+    return
+  }
   selectedEntry.value = entry
   isWriting.value = false
   editingEntry.value = null
+}
+
+function onUnlocked() {
+  if (!pinDialogEntry.value) return
+  unlockedIds.value = new Set([...unlockedIds.value, pinDialogEntry.value.id])
+  selectedEntry.value = pinDialogEntry.value
+  isWriting.value = false
+  editingEntry.value = null
+  pinDialogEntry.value = null
+}
+
+function openSetPin(entry: any) {
+  pinTargetEntry.value = entry
+  showSetPin.value = true
+}
+
+async function onPinSet(pin: string) {
+  if (!pinTargetEntry.value) return
+  await (supabase as any).from('journal_entries').update({ pin }).eq('id', pinTargetEntry.value.id)
+  const idx = entries.value.findIndex(e => e.id === pinTargetEntry.value.id)
+  if (idx !== -1) entries.value[idx].pin = pin
+  if (selectedEntry.value?.id === pinTargetEntry.value.id) selectedEntry.value.pin = pin
+  pinTargetEntry.value = null
+}
+
+async function removePin(entry: any) {
+  await (supabase as any).from('journal_entries').update({ pin: null }).eq('id', entry.id)
+  const idx = entries.value.findIndex(e => e.id === entry.id)
+  if (idx !== -1) entries.value[idx].pin = null
+  if (selectedEntry.value?.id === entry.id) selectedEntry.value.pin = null
 }
 
 function cancelEdit() {
